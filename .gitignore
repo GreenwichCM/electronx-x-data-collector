@@ -1,0 +1,13 @@
+# credentials
+.env
+liberator.json
+liberator.pfx
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# local data cache
+.cache/

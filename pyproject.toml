@@ -1,0 +1,35 @@
+[project]
+name = "electron-x-data-collector"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Jiu Xiao Heng" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "async-generator>=1.10",
+    "cryptography>=50.0.2",
+    "httpx>=0.28.1",
+    "pandas>=3.0.6",
+    "pyarrow>=26.0.0",
+    "pydantic>=2.14.1",
+    "pyopenssl>=26.4.0",
+    "python-dotenv>=1.0.0",
+    "pytz>=2026.5",
+    "requests>=2.34.2",
+    "six>=1.17.0",
+]
+
+[project.scripts]
+electron-x-data-collector = "electron_x_data_collector:main"
+
+[build-system]
+requires = ["uv_build>=0.12.21,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.4.0",
+    "jupyterlab>=4.6.4",
+]
