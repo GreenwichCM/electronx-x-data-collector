@@ -32,6 +32,14 @@ from .models import (
     QueryParams,
     Symbol,
 )
+from .research import (
+    add_forward_mids,
+    add_quote_state,
+    ic_summary,
+    information_coefficient,
+    summarize,
+    trade_markouts,
+)
 
 __all__ = [
     "BOOK_DEPTH",
@@ -56,16 +64,15 @@ __all__ = [
     "Product",
     "QueryParams",
     "Symbol",
+    "add_forward_mids",
     "add_mid_spread",
+    "add_quote_state",
     "add_symbol_columns",
     "book_to_long",
+    "ic_summary",
+    "information_coefficient",
     "iter_models",
     "normalize_frame",
+    "summarize",
+    "trade_markouts",
 ]
-
-
-def main() -> None:
-    ex = ElectronXClient()
-    for name, info in ex.dataset_info().items():
-        s = info.stats
-        print(f"{name}: {s.first_date} -> {s.last_date}, {s.row_count:,} rows, {s.symbol_count:,} symbols")

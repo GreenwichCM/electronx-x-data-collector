@@ -1,16 +1,16 @@
 [project]
 name = "electron-x-data-collector"
 version = "0.1.0"
-description = "Add your description here"
+description = "Typed client and research tools for ElectronX L1/L2 TAQ market data"
 readme = "README.md"
 authors = [
     { name = "Jiu Xiao Heng" }
 ]
 requires-python = ">=3.14"
 dependencies = [
-    "async-generator>=1.10",
     "cryptography>=50.0.2",
     "httpx>=0.28.1",
+    "numpy>=2.5",
     "pandas>=3.0.6",
     "pyarrow>=26.0.0",
     "pydantic>=2.14.1",
@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [project.scripts]
-electron-x-data-collector = "electron_x_data_collector:main"
+electron-x-data-collector = "electron_x_data_collector.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.12.21,<0.13.0"]
@@ -32,4 +32,8 @@ build-backend = "uv_build"
 dev = [
     "ipykernel>=7.4.0",
     "jupyterlab>=4.6.4",
+    "pytest>=9.1.1",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,4 +1,4 @@
-"""High-level ElectronX market data client built on the vendored ``liberator.py``."""
+"""High-level ElectronX market data client built on the vendored ``_vendor/liberator.py``."""
 
 from __future__ import annotations
 
@@ -14,16 +14,17 @@ from typing import Any
 
 import pandas as pd
 import pyarrow as pa
+from dotenv import load_dotenv
 
-from . import liberator
+from ._vendor import liberator
 from .frames import add_symbol_columns, empty_frame, iter_models, normalize_frame
 from .models import (
     NY_TZ,
     BaseEvent,
     ColumnSchema,
     Dataset,
-    DateLike,
     DatasetInfo,
+    DateLike,
     EventType,
     Market,
     Product,
@@ -45,42 +46,21 @@ class Credentials:
         return f"Credentials(user={self.user!r}, token='***', url={self.url!r})"
 
     @classmethod
-    def resolve(
-        cls,
-        user: str | None = None,
-        token: str | None = None,
-        url: str | None = None,
-        auth_file: str | os.PathLike | None = None,
-    ) -> Credentials:
-        """Explicit args > environment / .env > ``liberator.json``.
+    def resolve(cls, user: str | None = None, token: str | None = None, url: str | None = None) -> Credentials:
+        """Explicit args, else ``ELECTRONX_USER`` / ``ELECTRONX_TOKEN`` / ``ELECTRONX_URL``
+        from the environment or a ``.env`` file in the working directory.
 
-        Environment variables: ``ELECTRONX_USER``, ``ELECTRONX_TOKEN``,
-        ``ELECTRONX_URL`` (also ``LIBERATOR_USER`` / ``LIBERATOR_TOKEN``,
-        ``API_TOKEN`` / ``API_BASE_URL``).  ``USERNAME`` is deliberately *not*
-        read: on Windows it is always the OS login name.
+        The ``ELECTRONX_`` prefix matters: on Windows ``USERNAME`` is always the OS login name.
         """
-        try:
-            from dotenv import load_dotenv
-
-            load_dotenv()
-        except ImportError:  # pragma: no cover
-            pass
-
+        load_dotenv()
         env = os.environ.get
-        user = user or env("ELECTRONX_USER") or env("LIBERATOR_USER")
-        token = token or env("ELECTRONX_TOKEN") or env("LIBERATOR_TOKEN") or env("API_TOKEN")
-        url = url or env("ELECTRONX_URL") or env("API_BASE_URL") or DEFAULT_URL
-
-        if not (user and token):
-            path = Path(auth_file or env("ELECTRONX_AUTH_FILE") or "liberator.json")
-            if path.is_file():
-                data = json.loads(path.read_text())
-                user = user or data.get("user")
-                token = token or data.get("token")
+        user = user or env("ELECTRONX_USER")
+        token = token or env("ELECTRONX_TOKEN")
+        url = url or env("ELECTRONX_URL") or DEFAULT_URL
         if not (user and token):
             raise ValueError(
-                "ElectronX credentials not found. Pass user=/token=, set ELECTRONX_USER and "
-                "ELECTRONX_TOKEN (e.g. in .env), or point auth_file= at liberator.json."
+                "ElectronX credentials not found. Pass user=/token=, or set ELECTRONX_USER and "
+                "ELECTRONX_TOKEN (e.g. in .env)."
             )
         return cls(user=user, token=token, url=url.rstrip("/"))
 
@@ -88,7 +68,7 @@ class Credentials:
 class ElectronXClient:
     """Research-friendly access to the ElectronX L1 / L2 TAQ datasets.
 
-    >>> ex = ElectronXClient()                       # creds from .env / liberator.json
+    >>> ex = ElectronXClient()                       # creds from .env
     >>> ex.datasets()
     ['L1 TAQ', 'L2 TAQ']
     >>> df = ex.l1("2026-10-14", "2026-10-16", markets="ERCOT")
@@ -104,10 +84,9 @@ class ElectronXClient:
         token: str | None = None,
         url: str | None = None,
         *,
-        auth_file: str | os.PathLike | None = None,
         cache_dir: str | os.PathLike | None = None,
     ) -> None:
-        self.credentials = Credentials.resolve(user, token, url, auth_file)
+        self.credentials = Credentials.resolve(user, token, url)
         self.cache_dir = Path(cache_dir) if cache_dir else None
         self._info: dict[str, DatasetInfo] | None = None
 

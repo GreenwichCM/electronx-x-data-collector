@@ -11,3 +11,8 @@ __pycache__/
 
 # local data cache
 .cache/
+.pytest_cache/
+
+# vendor material (proprietary / confidential; keep local only)
+docs/*.pdf
+src/electron_x_data_collector/_vendor/liberator.py

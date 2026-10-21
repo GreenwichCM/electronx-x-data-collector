@@ -9,12 +9,11 @@ import pandas as pd
 from .models import (
     BOOK_DEPTH,
     EVENT_MODELS,
+    NY_TZ,
     SYMBOL_RE,
     BaseEvent,
     Dataset,
 )
-
-NY = "America/New_York"
 
 _CATEGORICAL = ("event_type", "exchange_flags", "aggressor_side")
 _STRING = ("symbol", "execution_id", "trade_id")
@@ -54,7 +53,7 @@ def normalize_frame(df: pd.DataFrame, dataset: Dataset | str) -> pd.DataFrame:
 
     if "timestamp" in df:
         df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce").dt.tz_localize(
-            NY, ambiguous="NaT", nonexistent="NaT"
+            NY_TZ, ambiguous="NaT", nonexistent="NaT"
         )
     for col in ("transact_time", "publish_date"):
         if col in df:

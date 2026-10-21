@@ -13,11 +13,12 @@ from __future__ import annotations
 
 import math
 import re
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
 from typing import Annotated, Any, ClassVar, Self
 from zoneinfo import ZoneInfo
 
+import pandas as pd
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -170,15 +171,10 @@ def _blank_to_none(v: Any) -> Any:
         return None
     if isinstance(v, float) and math.isnan(v):
         return None
-    try:  # pandas.NA / NaT
-        import pandas as pd
-
-        if v is pd.NA or v is pd.NaT:
-            return None
-        if isinstance(v, pd.Timestamp):  # drop ns so models from raw and typed frames agree
-            return v.floor("us").to_pydatetime()
-    except ImportError:  # pragma: no cover
-        pass
+    if v is pd.NA or v is pd.NaT:
+        return None
+    if isinstance(v, pd.Timestamp):  # drop ns so models from raw and typed frames agree
+        return v.floor("us").to_pydatetime()
     return v
 
 
@@ -199,9 +195,9 @@ def _parse_utc_timestamp(v: Any) -> Any:
         if "." in s:
             head, frac = s.split(".", 1)
             s = f"{head}.{frac[:6]}"
-        v = datetime.fromisoformat(s).replace(tzinfo=timezone.utc)
+        v = datetime.fromisoformat(s).replace(tzinfo=UTC)
     elif isinstance(v, datetime) and v.tzinfo is None:
-        v = v.replace(tzinfo=timezone.utc)
+        v = v.replace(tzinfo=UTC)
     return v
 
 
@@ -261,7 +257,7 @@ class BaseEvent(BaseModel):
 
     @property
     def muts_datetime(self) -> datetime:
-        return datetime.fromtimestamp(self.muts / 1_000_000, tz=timezone.utc)
+        return datetime.fromtimestamp(self.muts / 1_000_000, tz=UTC)
 
 
 class L1Event(BaseEvent):
